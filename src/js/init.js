@@ -47,6 +47,7 @@ function defineParams(){
 		this.updateFilter = {};
 		this.filterLims = {};
 		this.filterVals = {};
+		this.invertFilter = {};
 
 		//for frustum      
 		this.zmax = 5.e10;
@@ -126,6 +127,15 @@ function defineParams(){
 		//animation
 		this.pauseAnimation = false;
 
+		//tweening
+		this.inTween = false;
+		this.updateTween = false;
+		this.tweenFile = null;
+		this.tweenParams = {};
+		this.tweenPos = [];
+		this.tweenRot = [];
+		this.tweenFileName = "tweenParams.json"
+
 	};
 
 
@@ -145,7 +155,11 @@ function initControls(){
 
 			}
 		} 
-
+		if (params.haveUI){
+			elm = document.getElementById("CenterCheckBox");
+			elm.checked = true;
+			elm.value = true;
+		}
 		params.controls.dynamicDampingFactor = params.friction;
 
 	} else {
@@ -443,14 +457,15 @@ function applyOptions(){
 			}
 		}
 	}
-
-
 }
 
 
 function calcFilterLimits(p, fkey){
 //calculate limits for the filters
 	
+	
+	
+
 	var j=0;
 	if (params.parts[p][fkey] != null){
 		var i=0;
@@ -465,6 +480,15 @@ function calcFilterLimits(p, fkey){
 		max += 0.001;
 		params.filterLims[p][fkey] = [min, max];
 		params.filterVals[p][fkey] = [min, max];
+		params.invertFilter[p][fkey] = false;
+		//TODO this should not be here!!
+		// set the currently shown filter for each part type at startup
+		// so the first click isn't broken
+		if (params.parts[p]['currentlyShownFilter'] == undefined){
+			params.parts[p]['currentlyShownFilter']=fkey;
+			params.parts[p]['playbackTicks']=0;
+			params.parts[p]['playbackTickRate']=10;	
+		}
 	}
 }
 
@@ -506,6 +530,7 @@ function initPVals(){
 		params.updateFilter[p] = false;
 		params.filterLims[p] = {};
 		params.filterVals[p] = {};
+		params.invertFilter[p] = {};
 		params.fkeys[p] = [];
 		params.plotNmax[p] = params.parts[p].Coordinates.length;
 		params.PsizeMult[p] = 1.;
@@ -881,6 +906,10 @@ function WebGLStart(){
 
 
 //begin the animation
+// keep track of runtime for crashing the app rather than the computer
+	var currentTime = new Date();
+	var seconds = currentTime.getTime()/1000;
+	params.currentTime = seconds;
 	params.pauseAnimation = false;
 	animate();
 }
