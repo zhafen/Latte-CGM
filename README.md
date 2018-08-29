@@ -1,4 +1,4 @@
-# Time-Fly
+# Latte-CGM
 
 This shows the locations of 1e5 particles in the CGM of a Milky-Way progenitor at z=0.25. The specific simulation is a zoom-in galaxy formation simulation (named [Latte](https://arxiv.org/abs/1602.05957)) created as part of the [FIRE project](https://fire.northwestern.edu).
 
